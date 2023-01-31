@@ -4,34 +4,38 @@ import "./conversation.css";
 
 export default function Conversation({ conversation, currentUser }) {
   const [user, setUser] = useState(null);
-  const PF = process.env.REACT_APP_PUBLIC_FOLDER;
 
   useEffect(() => {
-    const friendId = conversation.members.find((m) => m !== currentUser._id);
-
+    const friendId = conversation.members.find(
+      (m) => m !== currentUser.data._id
+    );
     const getUser = async () => {
       try {
-        const res = await axios("/users?userId=" + friendId);
-        setUser(res.data);
+        var config = {
+          method: "get",
+          url: "http://localhost:8000/api/v1/admins/" + friendId,
+          headers: {
+            Authorization:
+              "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzY2NlMTIwNGFkZTUzZWIxMDNkZjAyMiIsImlhdCI6MTY3NTE4MTUzNSwiZXhwIjoxNjc1MjI0NzM1fQ.uGhTRttfcfCeh6YjhcRJTjC3WudUxv3yXkCOPrjqYJk",
+            Cookie:
+              "jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzY2NlMTIwNGFkZTUzZWIxMDNkZjAyMiIsImlhdCI6MTY3NTE4MTUzNSwiZXhwIjoxNjc1MjI0NzM1fQ.uGhTRttfcfCeh6YjhcRJTjC3WudUxv3yXkCOPrjqYJk",
+          },
+        };
+
+        const res = await axios(config);
+
+        setUser(res.data.data);
       } catch (err) {
         console.log(err);
       }
     };
     getUser();
-  }, [currentUser, conversation]);
+  }, []);
 
   return (
     <div className="conversation">
-      <img
-        className="conversationImg"
-        src={
-          user?.profilePicture
-            ? PF + user.profilePicture
-            : PF + "person/noAvatar.png"
-        }
-        alt=""
-      />
-      <span className="conversationName">{user?.username}</span>
+      <img className="conversationImg" src={user?.photo  } alt="" />
+      <span className="conversationName">{user?.firstName}</span>
     </div>
   );
 }

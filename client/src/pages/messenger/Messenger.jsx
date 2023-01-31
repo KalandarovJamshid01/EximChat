@@ -15,7 +15,8 @@ export default function Messenger() {
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const socket = useRef();
   const { user } = useContext(AuthContext);
-  console.log(user);
+  console.log(user.data);
+
   const scrollRef = useRef();
 
   useEffect(() => {
@@ -27,16 +28,16 @@ export default function Messenger() {
         createdAt: Date.now(),
       });
     });
-  }, []);
+  }, [messages]);
 
   useEffect(() => {
     arrivalMessage &&
       currentChat?.members.includes(arrivalMessage.sender) &&
       setMessages((prev) => [...prev, arrivalMessage]);
-  }, [arrivalMessage, currentChat]);
+  }, [currentChat, arrivalMessage]);
 
   useEffect(() => {
-    socket.current.emit("addUser", user._id);
+    socket.current.emit("addUser", user.data._id);
     socket.current.on("getUsers", (users) => {
       console.log(users);
     });
@@ -45,49 +46,57 @@ export default function Messenger() {
   useEffect(() => {
     const getConversations = async () => {
       try {
-        const res = await axios.get("/conversations/" + user._id);
+        const res = await axios.get(
+          "http://localhost:8000/api/v1/conversation/" + user.data._id
+        );
         setConversations(res.data);
       } catch (err) {
         console.log(err);
       }
     };
     getConversations();
-  }, [user._id]);
+  }, []);
+
+  const getMessages = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:8000/api/v1/message/" + currentChat?._id
+      );
+      setMessages(() => {
+        return res.data;
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   useEffect(() => {
-    const getMessages = async () => {
-      try {
-        const res = await axios.get("/messages/" + currentChat?._id);
-        setMessages(res.data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
     getMessages();
   }, [currentChat]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const message = {
-      sender: user._id,
-      text: newMessage,
-      conversationId: currentChat._id,
-    };
 
     const receiverId = currentChat.members.find(
-      (member) => member !== user._id
+      (member) => member !== user.data._id
     );
 
     socket.current.emit("sendMessage", {
-      senderId: user._id,
+      senderId: user.data._id,
       receiverId,
       text: newMessage,
     });
 
     try {
-      const res = await axios.post("/messages", message);
+      const res = await axios.post("http://localhost:8000/api/v1/message", {
+        senderId: user.data._id,
+        text: newMessage,
+        conversation_id: currentChat._id,
+      });
+
       setMessages([...messages, res.data]);
       setNewMessage("");
+      getMessages();
     } catch (err) {
       console.log(err);
     }
@@ -118,7 +127,7 @@ export default function Messenger() {
                 <div className="chatBoxTop">
                   {messages.map((m) => (
                     <div ref={scrollRef}>
-                      <Message message={m} own={m.sender === user._id} />
+                      <Message message={m} own={m.sender === user.data._id} />
                     </div>
                   ))}
                 </div>
