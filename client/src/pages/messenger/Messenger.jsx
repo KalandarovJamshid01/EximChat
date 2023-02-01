@@ -2,6 +2,7 @@ import "./messenger.css";
 import Topbar from "../../components/topbar/Topbar";
 import Conversation from "../../components/conversations/Conversation";
 import Message from "../../components/message/Message";
+import UserInfo from "../../components/userInfo/UserInfo.jsx";
 import { useContext, useEffect, useRef, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import axios from "axios";
@@ -14,6 +15,7 @@ export default function Messenger() {
   const [newMessage, setNewMessage] = useState("");
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const [notify, setNotify] = useState(null);
+  const [info, setInfo] = useState([]);
   const socket = useRef();
   const { user } = useContext(AuthContext);
   console.log(user.data);
@@ -70,6 +72,10 @@ export default function Messenger() {
       setMessages(() => {
         return res.data;
       });
+      const userInfoId = currentChat.members.find(
+        (member) => member !== user.data._id
+      );
+      setInfo([userInfoId, user.data.role]);
     } catch (err) {
       console.log(err);
     }
@@ -130,7 +136,7 @@ export default function Messenger() {
       <div className="messenger">
         <div className="chatMenu">
           <div className="chatMenuWrapper">
-            <input placeholder="Search for friends" className="chatMenuInput" />
+            <input placeholder="search..." className="chatMenuInput" />
             {conversations.map((c) => (
               <div onClick={() => setCurrentChat(c)}>
                 <Conversation conversation={c} currentUser={user} />
@@ -169,7 +175,9 @@ export default function Messenger() {
           </div>
         </div>
         <div className="chatOnline">
-          <div className="chatOnlineWrapper"></div>
+          <div className="chatOnlineWrapper">
+            <UserInfo infoId={info} />
+          </div>
         </div>
       </div>
     </>
