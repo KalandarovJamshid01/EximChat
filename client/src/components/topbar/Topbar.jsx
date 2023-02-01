@@ -1,12 +1,43 @@
 import "./topbar.css";
 import { Search, Person, Chat, Notifications } from "@material-ui/icons";
 import { Link } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
-
-export default function Topbar() {
+import axios from "axios";
+axios.defaults.withCredentials = true;
+export default function Topbar({ notifyData }) {
+  console.log(notifyData);
   const { user } = useContext(AuthContext);
   const PF = process.env.REACT_APP_PUBLIC_FOLDER;
+
+  const [notify, setNotify] = useState(null);
+
+  useEffect(() => {
+    const getNotify = async (req, res, next) => {
+      try {
+        var config = {
+          method: "get",
+          url: "http://localhost:8000/api/v1/notify",
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Content-Type": "application/json",
+          },
+        };
+
+        const res = await axios(config);
+        console.log(res.data.length);
+        if (notifyData) {
+          setNotify(res.data.length + 1);
+        } else {
+          setNotify(res.data.length);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getNotify();
+  }, [notifyData]);
+
   return (
     <div className="topbarContainer">
       <div className="topbarLeft">
@@ -39,7 +70,8 @@ export default function Topbar() {
           </div>
           <div className="topbarIconItem">
             <Notifications />
-            <span className="topbarIconBadge">1</span>
+            {console.log(notify)}
+            <span className="topbarIconBadge">{notify}</span>
           </div>
         </div>
         <Link to={`/profile/${user.username}`}>

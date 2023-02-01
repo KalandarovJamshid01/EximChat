@@ -13,6 +13,7 @@ export default function Messenger() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [arrivalMessage, setArrivalMessage] = useState(null);
+  const [notify, setNotify] = useState(null);
   const socket = useRef();
   const { user } = useContext(AuthContext);
   console.log(user.data);
@@ -27,6 +28,10 @@ export default function Messenger() {
         text: data.text,
         createdAt: Date.now(),
       });
+    });
+    socket.current.on("getNotify", (data) => {
+      console.log(data);
+      setNotify(data);
     });
   }, [messages]);
 
@@ -87,6 +92,19 @@ export default function Messenger() {
       text: newMessage,
     });
 
+    const res = await axios.post("http://localhost:8000/api/v1/notify", {
+      header: "Header",
+      body: "Body",
+      userId: receiverId,
+      documentId: 12235544,
+    });
+
+    socket.current.emit("sendNotify", {
+      senderId: user.data._id,
+      receiverId,
+      data: res.data,
+    });
+
     try {
       const res = await axios.post("http://localhost:8000/api/v1/message", {
         senderId: user.data._id,
@@ -108,7 +126,7 @@ export default function Messenger() {
 
   return (
     <>
-      <Topbar />
+      <Topbar notifyData={notify} />
       <div className="messenger">
         <div className="chatMenu">
           <div className="chatMenuWrapper">
