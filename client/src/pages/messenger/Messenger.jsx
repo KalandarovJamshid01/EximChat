@@ -176,7 +176,7 @@ export default function Messenger() {
         </div>
         <div className="chatOnline">
           <div className="chatOnlineWrapper">
-            <UserInfo infoId={info} />
+            {/* <UserInfo infoId={info} /> */}
           </div>
         </div>
       </div>
