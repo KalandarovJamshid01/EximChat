@@ -16,8 +16,10 @@ export default function Messenger() {
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const [notify, setNotify] = useState(null);
   const [info, setInfo] = useState([]);
-  const socket = useRef();
+  const socket = useRef();   
   const { user } = useContext(AuthContext);
+
+ 
   console.log(user.data);
 
   const scrollRef = useRef();
@@ -172,11 +174,6 @@ export default function Messenger() {
                 Open a conversation to start a chat.
               </span>
             )}
-          </div>
-        </div>
-        <div className="chatOnline">
-          <div className="chatOnlineWrapper">
-            {/* <UserInfo infoId={info} /> */}
           </div>
         </div>
       </div>

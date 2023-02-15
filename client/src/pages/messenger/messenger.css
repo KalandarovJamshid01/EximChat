@@ -4,7 +4,7 @@
 }
 
 .chatMenu {
-  flex: 3.5;
+  flex: 3;
 }
 
 .chatMenuInput {
@@ -54,9 +54,7 @@
   color: white;
 }
 
-.chatOnline {
-  flex: 3;
-}
+
 
 .chatMenuWrapper,
 .chatBoxWrapper,
@@ -86,7 +84,5 @@
     flex: 10;
   }
 
-  .chatOnline{
-    flex: 1px;
-  }
+ 
 }
